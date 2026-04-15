@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { AxiosError } from "axios";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -36,6 +37,14 @@ export default function LoginPage() {
         email: formData.email,
         password: formData.password,
       }, { withCredentials: true });
+
+      // 2. CREAR LA COOKIE DE ESPEJO
+      // Esta cookie no es sensible (no tiene el token), solo es una señal.
+      // Debe llamarse igual que la que buscaremos en el proxy.
+      Cookies.set('app_session_status', 'active', { 
+        expires: 1, // 1 día
+        sameSite: 'lax' // Al ser el mismo dominio del cliente, lax funciona perfecto
+      });
 
       router.replace('/feed');
     } catch (err) {
