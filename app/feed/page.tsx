@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
+import Cookies from "js-cookie";
 
 interface Post {
   id: number;
@@ -157,12 +158,10 @@ export default function FeedPage() {
       // 1. Llamamos al endpoint de logout para que el servidor limpie la cookie
       // 'withCredentials: true' es clave para que el navegador envíe la cookie que queremos borrar
       await api.post("/auth/logout", {}, { withCredentials: true });
-
-      // 3. Redirigimos al login
-      router.replace("/login");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
-      // Aun si falla la red, es buena práctica forzar la redirección
+    } finally {
+      Cookies.remove('app_session_status');
       router.replace("/login");
     }
   }
