@@ -1,4 +1,4 @@
-import { ICommentModal } from "@/app/feed/page"
+import { ICommentModal } from "@/app/(protected)/feed/page"
 import api from "@/lib/axios";
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import PostContent from "./PostList/Post/PostContent";

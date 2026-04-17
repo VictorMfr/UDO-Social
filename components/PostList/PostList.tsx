@@ -1,4 +1,4 @@
-import { ICommentModal, Post as IPost } from "@/app/feed/page";
+import { ICommentModal, Post as IPost } from "@/app/(protected)/feed/page";
 import { Dispatch, SetStateAction } from "react";
 import Post from "./Post/Post";
 
