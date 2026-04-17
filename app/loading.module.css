@@ -1,0 +1,32 @@
+/* frontend/app/loading.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.spinner {
+  width: 4rem; /* 64px */
+  height: 4rem;
+  border: 4px dashed #2563eb; /* Azul UDO */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.text {
+  margin-top: 1.5rem;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
