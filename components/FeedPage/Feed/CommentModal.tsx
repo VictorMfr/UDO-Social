@@ -1,10 +1,10 @@
-import { ICommentModal } from "@/app/(protected)/feed/page"
 import api from "@/lib/axios";
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import PostContent from "./PostList/Post/PostContent";
 import PostMedia from "./PostList/Post/PostMedia";
-import Modal from "./Modal/Modal";
-import ModalHeader from "./Modal/ModalHeader";
+import { Post } from "./Feed";
+import ModalHeader from "@/components/Modal/ModalHeader";
+import Modal from "@/components/Modal/Modal";
 
 interface UserComment {
     id: string,
@@ -13,6 +13,11 @@ interface UserComment {
     created_at: string,
     updated_at: string,
     deleted_at: string,
+}
+
+export interface ICommentModal {
+  open: boolean,
+  selectedPost: Post | null
 }
 
 export default function CommentModal({
@@ -31,21 +36,6 @@ export default function CommentModal({
     const [loadingUserComments, setLoadingUserComments] = useState<boolean>(true);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    // Funcion para consultar los comentarios de un post
-    // Se utiliza callback para no recrear la funcion por
-    // cada render
     const getPostComments = useCallback(async () => {
 
         // Por si se abre una segunda vez
@@ -60,14 +50,6 @@ export default function CommentModal({
             setLoadingUserComments(false);
         }
     }, [commentModal.selectedPost]);
-
-
-
-
-
-
-
-
 
 
     // Cada vez que se abre el modal, debe consultar los comentarios
@@ -174,9 +156,6 @@ export default function CommentModal({
                 </div>
             </div>
 
-
-
-
             <div className="p-4">
                 <textarea
                     autoFocus
@@ -187,10 +166,6 @@ export default function CommentModal({
                     onChange={(e) => setCommentContent(e.target.value)}
                 />
             </div>
-
-
-
-
 
             <div className="p-4 border-t flex justify-end gap-3">
                 <button
