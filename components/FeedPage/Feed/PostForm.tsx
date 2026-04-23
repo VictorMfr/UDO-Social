@@ -1,6 +1,6 @@
-import { Post } from "@/app/(protected)/feed/page";
 import api from "@/lib/axios";
 import { Dispatch, SetStateAction, useState } from "react";
+import { Post } from "./Feed";
 
 export default function PostForm({
     setPosts

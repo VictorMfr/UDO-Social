@@ -1,5 +1,5 @@
-import { ICommentModal, Post as IPost } from "@/app/(protected)/feed/page";
 import { Dispatch, SetStateAction } from "react";
+import { ICommentModal, Post as IPost } from "../Feed";
 import Post from "./Post/Post";
 
 export default function PostList({

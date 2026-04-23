@@ -1,4 +1,4 @@
-import { Post as IPost } from "@/app/(protected)/feed/page";
+import { Post as IPost } from "../../Feed";
 import PostAuthor from "./PostAuthor";
 import PostContent from "./PostContent";
 import PostMedia from "./PostMedia";
