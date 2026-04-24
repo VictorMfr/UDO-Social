@@ -4,8 +4,8 @@ import { createContext } from "react";
 
 
 export interface IUserContext {
-    user: { id: number, username: string } | null;
-    setUser: React.Dispatch<React.SetStateAction<{ id: number, username: string } | null>>;
+    user: { id: number, username: string, avatar: string } | null;
+    setUser: React.Dispatch<React.SetStateAction<{ id: number, username: string, avatar: string } | null>>;
     loading: boolean;
 }
 
@@ -22,7 +22,7 @@ export const useUserContext = () => {
 }
 
 export default function UserProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<{ id: number, username: string } | null>(null);
+    const [user, setUser] = useState<{ id: number, username: string, avatar: string } | null>(null);
     const [loading, setLoading] = useState(true);
 
 
@@ -30,8 +30,8 @@ export default function UserProvider({ children }: { children: React.ReactNode }
 
         const fetchProfileUser = async () => {
             try {
-                const response = await api.get<{ id: number, username: string }>('/users/me');
-                setUser({ id: response.data.id, username: response.data.username });
+                const response = await api.get<{ id: number, username: string, avatar: string }>('/users/me');
+                setUser({ id: response.data.id, username: response.data.username, avatar: response.data.avatar });
             } catch (error) {
                 console.log('Hubo un error al obtener el perfil del usuario:', error);
             } finally {

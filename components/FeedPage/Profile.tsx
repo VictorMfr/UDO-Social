@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { useUserContext } from "@/context/UserProvider";
+import Card from "../UI/Card";
+import Avatar from "../Avatar";
 
 
 export default function Profile() {
@@ -18,16 +20,18 @@ export default function Profile() {
 
     return (
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-20">
+        <Card variant="flat" className="sticky top-10">
             <div className="flex flex-col items-center text-center">
                 {/* Avatar grande */}
-                <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-md mb-4">
-                    {userCtx.user!.username[1].toUpperCase()}
-                </div>
+                <Avatar
+                    initialSrc={userCtx.user?.avatar}
+                    size="md"
+                />
+                
                 <h2 className="text-xl font-bold text-gray-900">Mi Perfil</h2>
                 <p className="text-sm text-gray-500 mb-6">{userCtx.user!.username}</p>
                 <Link href={'/profile'} className="text-blue-500">Editar perfil</Link>
             </div>
-        </div>
+        </Card>
     )
 }

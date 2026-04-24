@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/UI/Link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { AxiosError } from "axios";
 import Cookies from "js-cookie";
+import Text from "@/components/UI/Text";
+import Title from "@/components/UI/Title";
+import Input from "@/components/UI/Input";
+import Button from "@/components/UI/Button";
+import Card from "@/components/UI/Card";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -25,7 +30,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Disparar estado de carga
     setLoading(true);
     setError(null);
@@ -41,7 +46,7 @@ export default function LoginPage() {
       // 2. CREAR LA COOKIE DE ESPEJO
       // Esta cookie no es sensible (no tiene el token), solo es una señal.
       // Debe llamarse igual que la que buscaremos en el proxy.
-      Cookies.set('app_session_status', 'active', { 
+      Cookies.set('app_session_status', 'active', {
         expires: 1, // 1 día
         sameSite: 'lax' // Al ser el mismo dominio del cliente, lax funciona perfecto
       });
@@ -69,72 +74,78 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl shadow-gray-200/50">
+      <Card variant="flat" padding="lg" className="max-w-sm w-full space-y-8">
+
         {/* Encabezado */}
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">Bienvenido de nuevo</h2>
-          <p className="mt-2 text-sm text-gray-500">
+        <div className="text-center space-y-2">
+          <Title variant="h3" weight="black">
+            Bienvenido de nuevo
+          </Title>
+          <Text variant="sm" className="text-gray-500">
             Ingresa a tu cuenta de UDO Social
-          </p>
+          </Text>
         </div>
 
         {/* Alerta de Error */}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 text-red-700 text-sm">
-            {error}
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+            <Text variant="xs" weight="semibold" className="text-red-700">
+              {error}
+            </Text>
           </div>
         )}
 
         {/* Formulario */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Correo</label>
-              <input
-                type="text"
-                required
-                className="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                placeholder="Ej. correo@ejemplo.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-              <input
-                type="password"
-                required
-                className="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
-            </div>
+            <Input
+              label="Correo"
+              type="email"
+              placeholder="Ej. correo@ejemplo.com"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              sizeVariant="md"
+            />
+
+            <Input
+              label="Contraseña"
+              type="password"
+              placeholder="••••••••"
+              required
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              sizeVariant="md"
+            />
           </div>
 
-          <div>
-            <button
+          <div className="pt-2">
+            <Button
               type="submit"
-              disabled={loading}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all ${
-                loading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
+              isLoading={loading}
+              className="w-full"
+              size="lg"
             >
-              {loading ? "Cargando..." : "Entrar ahora"}
-            </button>
+              Entrar ahora
+            </Button>
           </div>
         </form>
 
-        {/* Pie de página del login */}
-        <div className="text-center text-sm">
-          <p className="text-gray-500">
+        {/* Pie de página */}
+        <div className="text-center">
+          <Text variant="sm" className="text-gray-500">
             ¿No tienes una cuenta?{" "}
-            <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-500">
+            <Link
+              href="/register"
+              size="none"
+              variant="ghost"
+              className="text-blue-600 font-bold hover:underline"
+            >
               Regístrate aquí
             </Link>
-          </p>
+          </Text>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

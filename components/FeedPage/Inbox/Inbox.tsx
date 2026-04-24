@@ -3,6 +3,7 @@ import { useState } from "react";
 import SearchBar from "./SearchBar";
 import Contacts, { SearchUser } from "./Contacts/Contacts";
 import ChatFloatingWindow from "./Contacts/ChatFloatingWindows";
+import Card from "@/components/UI/Card";
 
 export interface Conversation {
     id: number;
@@ -42,8 +43,7 @@ export default function Inbox() {
 
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col sticky top-20 overflow-hidden h-[calc(100vh-120px)]">
-
+        <Card className="sticky top-10">
             {/* Header de mensajes */}
             <div className="p-4 border-b bg-white flex justify-between items-center">
                 <h2 className="font-bold text-gray-900">{"Mensajes"}</h2>
@@ -63,6 +63,6 @@ export default function Inbox() {
                     dest: null
                 })}
             />
-        </div>
+        </Card>
     );
 }

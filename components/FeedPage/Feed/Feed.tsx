@@ -11,6 +11,7 @@ export interface Post {
     media_url?: string;
     username: string;
     created_at: string;
+    avatar: string;
 }
 
 export interface ICommentModal {
