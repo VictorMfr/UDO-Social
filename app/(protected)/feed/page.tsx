@@ -19,7 +19,7 @@ export default function FeedPage() {
 
           {/* COLUMNA DERECHA: FEED (Ocupa 2 de 3 columnas) */}
           <section className="md:col-span-6 space-y-6">
-            <Feed/>
+            <Feed />
           </section>
 
           {/* COLUMNA DERECHA: CHATS */}

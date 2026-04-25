@@ -12,6 +12,7 @@ export interface Post {
     username: string;
     created_at: string;
     avatar: string;
+    user_id: number;
 }
 
 export interface ICommentModal {
@@ -19,7 +20,7 @@ export interface ICommentModal {
     selectedPost: Post | null
 }
 
-export default function Feed() {
+export default function Feed({ userId }: { userId?: number }) {
 
     const [posts, setPosts] = useState<Post[]>([]);
 
@@ -37,7 +38,7 @@ export default function Feed() {
             try {
                 setLoading(true);
 
-                const postsRes = await api.get("/posts");
+                const postsRes = await api.get(`/posts?userId=${userId}`);
                 
                 setPosts(postsRes.data);
             } catch (error) {
@@ -52,11 +53,12 @@ export default function Feed() {
 
     return (
         <Fragment>
-            <PostForm setPosts={setPosts} />
+            {!userId && <PostForm setPosts={setPosts} />}
             <PostList
                 posts={posts}
                 setCommentModal={setCommentModal}
                 loadingPosts={loading}
+                allowUserClickProfile={!userId}
             />
 
             {/* Modal de comentarios */}

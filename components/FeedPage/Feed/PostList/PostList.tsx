@@ -1,15 +1,18 @@
 import { Dispatch, SetStateAction } from "react";
 import { ICommentModal, Post as IPost } from "../Feed";
 import Post from "./Post/Post";
+import Card from "@/components/UI/Card";
 
 export default function PostList({
     posts,
     loadingPosts,
-    setCommentModal
+    setCommentModal,
+    allowUserClickProfile
 }: {
     posts: IPost[],
     loadingPosts: boolean,
-    setCommentModal: Dispatch<SetStateAction<ICommentModal>>
+    setCommentModal: Dispatch<SetStateAction<ICommentModal>>,
+    allowUserClickProfile?: boolean
 }) {
 
     // Función para abrir el modal
@@ -23,9 +26,9 @@ export default function PostList({
     return (
         <div className="space-y-4">
             {posts.map((post) => (
-                <article key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <Post post={post}/>
-                    <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex gap-6 text-gray-500 text-sm">
+                <Card key={post.id} variant="flat" padding="none">
+                    <Post post={post} allowUserClickProfile={allowUserClickProfile}/>
+                    <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex gap-6 text-gray-500 text-sm over">
                         <button
                             onClick={() => openCommentModal(post)} // <-- Agregamos esto
                             className="hover:text-blue-600 transition-colors flex items-center gap-1"
@@ -36,7 +39,7 @@ export default function PostList({
                             Comentar
                         </button>
                     </div>
-                </article>
+                </Card>
             ))}
         </div>
     )

@@ -43,7 +43,7 @@ export default function Inbox() {
 
 
     return (
-        <Card className="sticky top-10">
+        <Card className="sticky top-10" variant="flat">
             {/* Header de mensajes */}
             <div className="p-4 border-b bg-white flex justify-between items-center">
                 <h2 className="font-bold text-gray-900">{"Mensajes"}</h2>

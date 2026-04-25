@@ -1,6 +1,7 @@
 import api from "@/lib/axios";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Post } from "./Feed";
+import Card from "@/components/UI/Card";
 
 export default function PostForm({
     setPosts
@@ -77,7 +78,7 @@ export default function PostForm({
     
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <Card variant="flat">
             <form onSubmit={handleCreatePost}>
                 <textarea
                     className="w-full border-none focus:ring-0 text-lg resize-none placeholder-gray-400 outline-none"
@@ -121,6 +122,6 @@ export default function PostForm({
                     </button>
                 </div>
             </form>
-        </div>
+        </Card>
     )
 }

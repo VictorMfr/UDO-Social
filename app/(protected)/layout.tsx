@@ -1,4 +1,3 @@
-import NavBar from "@/components/NavBar";
 import Header from "@/components/UI/Header";
 import { Fragment } from "react/jsx-runtime";
 
