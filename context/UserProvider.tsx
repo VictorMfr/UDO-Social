@@ -1,3 +1,5 @@
+'use client';
+
 import api from "@/lib/axios";
 import { useContext, useEffect, useState } from "react";
 import { createContext } from "react";

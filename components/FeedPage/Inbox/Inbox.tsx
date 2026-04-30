@@ -1,9 +1,10 @@
 import { useUserContext } from "@/context/UserProvider";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
-import Contacts, { SearchUser } from "./Contacts/Contacts";
-import ChatFloatingWindow from "./Contacts/ChatFloatingWindows";
+import Contacts, { ContactUser } from "./Contacts/Contacts";
+import ChatFloatingWindow from "./Contacts/ChatFloatingWindow/ChatFloatingWindows";
 import Card from "@/components/UI/Card";
+import Text from "@/components/UI/Text";
 
 export interface Conversation {
     id: number;
@@ -14,10 +15,12 @@ export interface Conversation {
     last_message_sender_id: number;
 }
 
+
 // Tipado para la ventana
 export interface ChatWindow {
     isOpen: boolean;
-    dest: SearchUser | Conversation | null;
+    user: ContactUser | null;
+    conversationId?: number;
 }
 
 export default function Inbox() {
@@ -27,30 +30,33 @@ export default function Inbox() {
     // Estados para la búsqueda
     const [searchTerm, setSearchTerm] = useState("");
 
-    const [chatWindow, setChatWindow] = useState<ChatWindow>({
-        isOpen: false,
-        dest: null
-    });
+    const [chatWindow, setChatWindow] = useState<ChatWindow>({ isOpen: false, user: null });
 
     // Verificar que las credenciales del usuario estén cargando o no
     if (userCtx.loading) {
         return (
             <aside className="animate-pulse">
-                <div className="bg-gray-300 w-full h-[600px] rounded" />
+                <div className="bg-gray-300 w-full h-150 rounded" />
             </aside>
         )
     }
 
+    const closeChatWindow = () => {
+        setChatWindow({
+            isOpen: false,
+            user: null
+        })
+    }
+
 
     return (
-        <Card className="sticky top-10" variant="flat">
+        <Card className="sticky top-10 space-y-2 h-167.5" variant="flat" padding="md">
             {/* Header de mensajes */}
-            <div className="p-4 border-b bg-white flex justify-between items-center">
-                <h2 className="font-bold text-gray-900">{"Mensajes"}</h2>
-            </div>
 
-            {/* Buscador Dinámico */}
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            <div>
+                <Text variant="xl">Mensajes</Text>
+                <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            </div>
 
             {/* Lista de contactos */}
             <Contacts searchTerm={searchTerm} onSelectChat={setChatWindow} />
@@ -58,10 +64,7 @@ export default function Inbox() {
             {/* Ventana de chat flotante */}
             <ChatFloatingWindow
                 chat={chatWindow}
-                onClose={() => setChatWindow({
-                    isOpen: false,
-                    dest: null
-                })}
+                onClose={closeChatWindow}
             />
         </Card>
     );

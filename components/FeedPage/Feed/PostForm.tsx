@@ -2,6 +2,8 @@ import api from "@/lib/axios";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Post } from "./Feed";
 import Card from "@/components/UI/Card";
+import Input from "@/components/UI/Input";
+import Button from "@/components/UI/Button";
 
 export default function PostForm({
     setPosts
@@ -75,17 +77,18 @@ export default function PostForm({
 
 
 
-    
+
 
     return (
-        <Card variant="flat">
+        <Card variant="flat" padding="sm">
             <form onSubmit={handleCreatePost}>
-                <textarea
-                    className="w-full border-none focus:ring-0 text-lg resize-none placeholder-gray-400 outline-none"
+
+                <Input
+                    multiple
                     placeholder="¿Qué está pasando en la UDO?"
-                    rows={3}
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
+                    className="w-full bg-white border-none border-white focus:ring-0 focus:ring-white text-lg resize-none placeholder-white outline-none"
                 />
 
                 {/* VISTA PREVIA DE LA IMAGEN */}
@@ -113,13 +116,12 @@ export default function PostForm({
                         <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                     </label>
 
-                    <button
+                    <Button
                         type="submit"
-                        className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
                         disabled={!newPost.trim() && !image}
                     >
                         Publicar
-                    </button>
+                    </Button>
                 </div>
             </form>
         </Card>

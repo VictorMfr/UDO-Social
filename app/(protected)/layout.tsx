@@ -1,11 +1,14 @@
 import Header from "@/components/UI/Header";
-import { Fragment } from "react/jsx-runtime";
+import SocketProvider from "@/context/SocketProvider";
+import UserProvider from "@/context/UserProvider";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
     return (
-        <Fragment>
-            <Header auth={true}/>
-            {children}
-        </Fragment>
+        <UserProvider>
+            <SocketProvider>
+                <Header auth={true} />
+                {children}
+            </SocketProvider>
+        </UserProvider>
     );
 }

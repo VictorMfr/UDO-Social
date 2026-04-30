@@ -2,12 +2,10 @@
 
 import Profile from "@/components/FeedPage/Profile";
 import Inbox from "@/components/FeedPage/Inbox/Inbox";
-import UserProvider from "@/context/UserProvider";
 import Feed from "@/components/FeedPage/Feed/Feed";
 
 export default function FeedPage() {
   return (
-    <UserProvider>
       <div className="min-h-screen bg-gray-100">
         {/* Contenedor principal con Grid */}
         <main className="mx-auto py-6 px-4 grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -28,6 +26,5 @@ export default function FeedPage() {
           </aside>
         </main>
       </div>
-    </UserProvider>
   );
 }

@@ -1,26 +1,39 @@
-import { useUserContext } from "@/context/UserProvider";
 import api from "@/lib/axios";
 import { useEffect, useMemo, useState } from "react";
 import { ChatWindow } from "../Inbox";
+import ContactItem from "./ContactItem";
+import { formatDate } from "@/lib/formatDate";
+import Text from "@/components/UI/Text";
+import { useSocketContext } from "@/context/SocketProvider";
 
 // Interfaz de un contacto normal
 export interface Conversation {
-    id: number;
-    updated_at: string;
-    starter_username: string;
-    receiver_username: string;
-    last_message: string | null;
-    last_message_sender_id: number;
+    id: number,
+    type: 'PRIVATE' | 'GROUP',
+    updated_at: string,
+    self_participation: {
+        last_read_message_id: number
+    },
+    lastMessage: {
+        content: string
+    },
+    other_participants: {
+        user_id: number,
+        user: {
+            id: number,
+            username: string,
+            avatar: string
+        } 
+    }[]
 }
 
 // Interfaz de un usuario buscado en la API
-export interface SearchUser {
+export interface ContactUser {
     id: number;
     username: string;
+    avatar: string;
+    new?: boolean;
 }
-
-
-
 
 export default function Contacts({
     searchTerm,
@@ -29,47 +42,34 @@ export default function Contacts({
     searchTerm: string;
     onSelectChat: (chat: ChatWindow) => void
 }) {
-    const userCtx = useUserContext();
     const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [foundUsers, setFoundUsers] = useState<SearchUser[]>([]);
+    const [foundUsers, setFoundUsers] = useState<ContactUser[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isSearchingAPI, setIsSearchingAPI] = useState<boolean>(false);
 
+    // Socket
+    const { socket } = useSocketContext();
 
-
-
-    // Lógica para determinar el nombre del otro usuario
-    const handleContactClick = (conv: Conversation) => {
-
-        // Abrir ventana de chat con la información de la conversación seleccionada
-        onSelectChat({
-            isOpen: true,
-            dest: conv
-        });
-    };
 
     // Iniciar conversacion con un nuevo usuario encontrado
-    const handleNewUserClick = async (user: SearchUser) => {
-
+    const handleNewUserClick = async (user: ContactUser) => {
         // Solo abrir ventana de chat con la id del usuario encontrado
         onSelectChat({
             isOpen: true,
-            dest: user
+            user: {
+                ...user,
+                new: true
+            }
         });
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
+    const handleExistingUserClick = async (conv: Conversation) => {
+        onSelectChat({
+            isOpen: true,
+            user: conv.other_participants[0].user,
+            conversationId: conv.id
+        });
+    }
 
     // Cargar conversaciones iniciales
     useEffect(() => {
@@ -86,27 +86,51 @@ export default function Contacts({
         fetchConversations();
     }, []);
 
+    // Escuchar nuevos mensajes para actualizar la lista de conversaciones
+    useEffect(() => {
+        if (socket) {
+            socket.on('new_message', ({ conversationId, message }) => {
+                setConversations(prev => prev.map(conv => {
+                    if (conv.id === conversationId) {
+                        return {
+                            ...conv,
+                            lastMessage: { content: message.content },
+                            updated_at: message.date
+                        };
+                    }
+                    return conv;
+                }));
+            });
+
+            // También escuchar cuando se envía un mensaje (para actualizar el remitente)
+            socket.on('message_sent', ({ conversationId }: { conversationId: number }) => {
+                // Recargar las conversaciones para obtener el último mensaje actualizado
+                api.get<Conversation[]>("/conversations").then(response => {
+                    setConversations(response.data);
+                }).catch(console.error);
+            });
+        }
+
+        return () => {
+            if (socket) {
+                socket.off('new_message');
+                socket.off('message_sent');
+            }
+        };
+    }, [socket]);
+
+
+
     // Filtrado local
     const filteredConversations = useMemo(() => {
         if (!searchTerm) return conversations;
-        const currentUsername = userCtx.user?.username || "";
 
         return conversations.filter(conversation => {
-            const otherUsername = (conversation.starter_username === currentUsername)
-                ? conversation.receiver_username
-                : conversation.starter_username;
-            return otherUsername.toLowerCase().includes(searchTerm.toLowerCase());
+            if (conversation.type == 'PRIVATE') {
+                return conversation.other_participants[0].user.username.includes(searchTerm);
+            }
         });
-    }, [searchTerm, conversations, userCtx.user]);
-
-
-
-
-
-
-
-
-
+    }, [searchTerm, conversations]);
 
 
     // Busqueda remota con debounce
@@ -122,7 +146,7 @@ export default function Contacts({
         const delayDebounceFn = setTimeout(async () => {
             setIsSearchingAPI(true);
             try {
-                const response = await api.get<SearchUser[]>(`/users?q=${searchTerm}`);
+                const response = await api.get<ContactUser[]>(`/users?q=${searchTerm}`);
                 setFoundUsers(response.data);
             } catch (error) {
                 console.error('Error al buscar usuarios', error);
@@ -134,9 +158,6 @@ export default function Contacts({
         // ESTO ES VITAL: Cancela el timer si el usuario sigue escribiendo
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm, filteredConversations.length]);
-
-
-
 
 
     // Lógica de visualización
@@ -157,44 +178,50 @@ export default function Contacts({
                     {[1, 2, 3].map(i => <div key={i} className="h-12 bg-gray-200 rounded-xl w-full" />)}
                 </div>
             ) : (
-                <div className="p-4 space-y-2">
+                <div>
                     {/* Prioridad 1: Conversaciones locales */}
                     {filteredConversations.map((conv) => (
-                        <div key={`conv-${conv.id}`} className="bg-white border rounded-xl p-4 hover:border-blue-300 transition-all cursor-pointer" onClick={() => handleContactClick(conv)}>
-                            <h3 className="font-bold text-sm">
-                                {conv.starter_username === userCtx.user?.username ? conv.receiver_username : conv.starter_username}
-                            </h3>
-                            <p className="text-xs text-gray-500 truncate">{conv.last_message || "Sin mensajes"}</p>
-                        </div>
+                        <ContactItem
+                            userId={conv.other_participants[0].user.id}
+                            conversationId={conv.id}
+                            date={formatDate(conv.updated_at)}
+                            lastMessage={conv.lastMessage.content || "Sin mensajes"}
+                            username={conv.other_participants[0].user.username}
+                            key={`conv-${conv.id}`}
+                            avatarSrc={conv.other_participants[0].user.avatar}
+                            isRead={false}
+                            onClick={() => handleExistingUserClick(conv)}
+                        />
                     ))}
 
                     {/* Mensaje si no hay contactos inicialmente */}
                     {isEmptyContacts && (
                         <div className="text-center py-10">
-                            <p className="text-gray-400 text-sm italic">Aún no tienes conversaciones. Busca a alguien para iniciar un chat.</p>
+                            <Text>Aún no tienes conversaciones. Busca a alguien para iniciar un chat.</Text>
                         </div>
                     )}
 
                     {/* Prioridad 2: Usuarios nuevos de la API */}
                     {foundUsers.map((user) => (
-                        <div
-                            key={`user-${user.id}`}
-                            className="bg-blue-50 border border-blue-100 rounded-xl p-4 hover:bg-blue-100 transition-all cursor-pointer"
+                        <ContactItem
+                            userId={user.id}
+                            date={''}
+                            lastMessage={"Empezar nueva conversacion"}
+                            username={user.username}
+                            key={user.id}
+                            avatarSrc={user.avatar}
+                            isRead={false}
+                            newContact={true}
                             onClick={() => handleNewUserClick(user)}
-                        >
-                            <h3 className="font-bold text-sm text-blue-800">@{user.username}</h3>
-                            <p className="text-[10px] text-blue-500 uppercase font-bold tracking-tighter">Nuevo contacto</p>
-                        </div>
+                        />
                     ))}
 
                     {/* Mensaje si no hay contactos despues de filtrar */}
                     {noResults && (
                         <div className="text-center py-10">
-                            <p className="text-gray-400 text-sm italic">No encontramos a nadie con ese nombre.</p>
+                            <Text>No encontramos a nadie con ese nombre.</Text>
                         </div>
                     )}
-
-
                 </div>
             )}
         </div>
