@@ -1,36 +1,36 @@
-import { ChatWindow } from "../../Inbox";
 import { ChangeEventHandler, useEffect, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Input from "@/components/UI/Input";
 import Button from "@/components/UI/Button";
-import { LuSend } from "react-icons/lu";
+import { LuCheckCheck, LuSend } from "react-icons/lu";
 import { formatDate } from "@/lib/formatDate";
 import api from "@/lib/axios";
 import { useSocketContext } from "@/context/SocketProvider";
+import { ChatWindow, Message, MessageResponse } from "../chat.types";
 
+const processMessagesWithDates = (messages: Message[]): Message[] => {
+  const result: Message[] = [];
 
+  messages.forEach((msg, index) => {
+    const currentDate = new Date(msg.date).toLocaleDateString();
+    const prevDate = index > 0
+      ? new Date(messages[index - 1].date).toLocaleDateString()
+      : null;
 
+    // Si es el primer mensaje o la fecha cambió respecto al anterior
+    if (currentDate !== prevDate) {
+      result.push({
+        id: -(index + 1000000), // ID único temporal para el separador
+        origin: 'system',
+        content: currentDate, // El contenido será la fecha formateada
+        date: msg.date,
+      });
+    }
+    result.push(msg);
+  });
 
-// Interfaz para el manejo de mensajes
-export interface Message {
-  id: number,
-  origin: 'other' | 'self',
-  content: string,
-  date: string,
-  sender?: {
-    id: number,
-    username: string,
-    avatar: string
-  }
-}
-
-// Interfaz para la respuesta de mensajes de la API
-export interface MessageResponse {
-  id: number;
-  conversationId?: number;
-  created_at: string
-}
-
+  return result;
+};
 
 export default function ChatFloatingWindow({
   chat,
@@ -96,7 +96,7 @@ export default function ChatFloatingWindow({
             // Si ya existe un mensaje con este ID, no añadirlo de nuevo
             const exists = prev.some(msg => msg.id === message.id);
             if (exists) return prev;
-            
+
             return [...prev, {
               id: message.id,
               content: message.content,
@@ -134,13 +134,13 @@ export default function ChatFloatingWindow({
       }, 2000);
     }
 
+    if (newMessageUserInput.length === 0 && socket && chat.conversationId) {
+      socket.emit('stop_typing_message', chat.conversationId);
+    }
+
     return () => {
       if (typingTimeout) {
         clearTimeout(typingTimeout);
-      }
-      // Limpiar el estado de typing al desmontar
-      if (socket && chat.conversationId) {
-        socket.emit('stop_typing_message', chat.conversationId);
       }
     };
   }, [newMessageUserInput, socket, chat.conversationId]);
@@ -170,8 +170,6 @@ export default function ChatFloatingWindow({
       socket.emit('stop_typing_message', chat.conversationId);
     }
 
-
-
     // Luego se crea toda la comunicacion desde la Base de Datos
     try {
 
@@ -183,13 +181,13 @@ export default function ChatFloatingWindow({
         });
 
         // Actualizar el mensaje temporal con los datos reales del backend
-        setMessagesList(prev => prev.map(msg => 
-          msg.id === -tempId 
-            ? { 
-                ...msg, 
-                id: response.data.id, 
-                date: formatDate(response.data.created_at) 
-              }
+        setMessagesList(prev => prev.map(msg =>
+          msg.id === -tempId
+            ? {
+              ...msg,
+              id: response.data.id,
+              date: formatDate(response.data.created_at)
+            }
             : msg
         ));
 
@@ -205,13 +203,13 @@ export default function ChatFloatingWindow({
         });
 
         // Actualizar el mensaje temporal con los datos reales del backend
-        setMessagesList(prev => prev.map(msg => 
-          msg.id === -tempId 
-            ? { 
-                ...msg, 
-                id: response.data.id, 
-                date: formatDate(response.data.created_at) 
-              }
+        setMessagesList(prev => prev.map(msg =>
+          msg.id === -tempId
+            ? {
+              ...msg,
+              id: response.data.id,
+              date: formatDate(response.data.created_at)
+            }
             : msg
         ));
 
@@ -228,8 +226,20 @@ export default function ChatFloatingWindow({
     }
   }
 
+  // Cada vez que este componente se abre, se debe marcar como leido el mensaje el
+  // otro participante
+  useEffect(() => {
+    if (chat.isOpen && chat.conversationId) {
+      // Hacer la consulta a la ruta respectiva
+      (async () => {
+        await api.post('/participants', {
+          conv_id: chat.conversationId
+        }, { withCredentials: true });
 
-
+        console.log('El usuario leyo los mensajes exitosamente')
+      })()
+    }
+  }, [chat.isOpen, chat.conversationId]);
 
 
 
@@ -258,13 +268,37 @@ export default function ChatFloatingWindow({
         {/* Aquí va tu mapeo de mensajes: <MessageList id={chat.conversationId} /> */}
         <p className="text-[10px] text-center text-gray-400">Estás chateando con {chat.user.username}</p>
 
-        {/* Lista de mensajes */}
-        {messagesList.map((message) => (
-          <div key={message.id} className={`p-2 rounded-lg ${message.origin === 'self' ? 'bg-blue-500 text-white ml-auto' : 'bg-gray-200 text-gray-800 mr-auto'}`}>
-            <p className="text-sm">{message.content}</p>
-            <p className="text-[8px] text-right">{message.date}</p>
-          </div>
-        ))}
+        {processMessagesWithDates(messagesList).map((message) => {
+          // CASO 1: Mensaje de Sistema (Separador de Fecha)
+          if (message.origin === 'system') {
+            return (
+              <div key={message.id} className="flex justify-center my-2">
+                <span className="bg-blue-100 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                  {message.content === new Date().toLocaleDateString() ? 'Hoy' : message.content}
+                </span>
+              </div>
+            );
+          }
+
+          // CASO 2: Mensajes Normales (Self / Other)
+          return (
+            <div
+              key={message.id}
+              className={`max-w-[80%] p-2 rounded-lg shadow-sm ${message.origin === 'self'
+                  ? 'bg-blue-500 text-white ml-auto rounded-br-none'
+                  : 'bg-white text-gray-800 mr-auto rounded-bl-none border border-gray-200'
+                }`}
+            >
+              <p className="text-sm">{message.content}</p>
+              <div className={`flex items-center gap-1 mt-1 ${message.origin === 'self' ? 'justify-end' : 'justify-start'}`}>
+                <p className={`text-[9px] ${message.origin === 'self' ? 'text-blue-100' : 'text-gray-400'}`}>
+                  {new Date(message.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+                {message.origin === 'self' && <LuCheckCheck className="text-[10px]" />}
+              </div>
+            </div>
+          );
+        })}
 
         {/* Indicador de que el otro usuario está escribiendo */}
         {isOtherTyping && (

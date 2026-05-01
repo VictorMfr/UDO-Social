@@ -1,4 +1,4 @@
-import React, { ComponentType, forwardRef } from "react";
+import React, { ComponentType, forwardRef, useId } from "react";
 import Text from "./Text";
 
 type InputSize = "sm" | "md" | "lg";
@@ -8,7 +8,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   sizeVariant?: InputSize;
   className?: string;
-  LeftIcon?: ComponentType<{ className?: string }>; // Tipado para recibir clases de Tailwind
+  LeftIcon?: ComponentType<{ className?: string }>;
   RightIcon?: ComponentType<{ className?: string }>;
 }
 
@@ -18,7 +18,6 @@ const sizeClasses: Record<InputSize, string> = {
   lg: "py-3.5 text-base",
 };
 
-// Controlamos el padding lateral según si hay iconos o no
 const getPaddingClasses = (size: InputSize, hasLeft: boolean, hasRight: boolean) => {
   const paddings = {
     sm: { left: hasLeft ? "pl-9" : "pl-3", right: hasRight ? "pr-9" : "pr-3" },
@@ -35,22 +34,28 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   className = "",
   LeftIcon,
   RightIcon,
+  id,
   ...props 
 }, ref) => {
     const hasLeftIcon = !!LeftIcon;
     const hasRightIcon = !!RightIcon;
+    
+    // Generamos un ID único si no se pasa uno por props para conectar label e input
+    const generatedId = useId();
+    const inputId = id || generatedId;
 
     return (
       <div className="flex flex-col gap-1.5 w-full">
         {label && (
-          <label className="text-sm font-semibold text-gray-700 ml-1">
+          <label 
+            htmlFor={inputId} 
+            className="text-sm text-gray-700 ml-1 cursor-pointer select-none"
+          >
             {label}
           </label>
         )}
 
-        {/* Contenedor relativo para posicionar los iconos */}
         <div className="relative flex items-center">
-          
           {/* Icono Izquierdo */}
           {LeftIcon && (
             <div className="absolute left-3 text-gray-400 pointer-events-none">
@@ -59,7 +64,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
           )}
 
           <input
+            {...props}
             ref={ref}
+            id={inputId}
             className={`
               w-full bg-gray-50 border rounded-lg transition-all
               placeholder:text-gray-400 outline-none
@@ -72,7 +79,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
               }
               ${className}
             `}
-            {...props}
           />
 
           {/* Icono Derecho */}
@@ -84,7 +90,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         </div>
 
         {error && (
-          <Text variant="xs" className="text-red-500 ml-1 font-medium">
+          <Text variant="xs" className="text-red-500 ml-1 font-medium animate-in fade-in slide-in-from-top-1">
             {error}
           </Text>
         )}

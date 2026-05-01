@@ -1,8 +1,8 @@
 "use client";
 
 import Profile from "@/components/FeedPage/Profile";
-import Inbox from "@/components/FeedPage/Inbox/Inbox";
 import Feed from "@/components/FeedPage/Feed/Feed";
+import InboxCard from "@/features/chat/components/InboxCard";
 
 export default function FeedPage() {
   return (
@@ -22,7 +22,7 @@ export default function FeedPage() {
 
           {/* COLUMNA DERECHA: CHATS */}
           <aside className="hidden lg:block col-span-3">
-            <Inbox/>
+            <InboxCard/>
           </aside>
         </main>
       </div>
