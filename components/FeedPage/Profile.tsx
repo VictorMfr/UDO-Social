@@ -20,7 +20,7 @@ export default function Profile() {
 
     return (
 
-        <Card variant="flat" className="sticky top-10">
+        <Card variant="elevated" >
             <div className="flex flex-col items-center text-center">
                 {/* Avatar grande */}
                 <Avatar

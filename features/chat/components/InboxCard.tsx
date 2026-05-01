@@ -16,7 +16,8 @@ export default function InboxCard() {
     if (loading) return <InboxSkeleton />;
 
     return (
-        <Card className="sticky top-10 space-y-2 h-167.5" variant="flat" padding="md">
+        <Card className="sticky top-10 space-y-2 h-167.5" variant="elevated" padding="md">
+            <Text variant="sm" className="text-gray-400">(Esta funcionalidad aun no es segura)</Text>
             <div>
                 <Text variant="xl" weight="bold">Mensajes</Text>
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
@@ -31,6 +32,8 @@ export default function InboxCard() {
                 chat={chatWindow} 
                 onClose={closeChat} 
             />
+
+            
         </Card>
     );
 }

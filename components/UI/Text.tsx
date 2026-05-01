@@ -32,7 +32,7 @@ export default function Text({
   className = "",
 }: TextProps) {
   return (
-    <p className={`${variantClasses[variant]} ${weightClasses[weight]} text-gray-700 ${className}`}>
+    <p className={`${variantClasses[variant]} ${weightClasses[weight]} ${className}`}>
       {children}
     </p>
   );

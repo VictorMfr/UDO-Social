@@ -13,7 +13,7 @@ interface CardProps {
 
 const variantClasses: Record<CardVariant, string> = {
   flat: "bg-white border border-gray-100",
-  elevated: "bg-white border border-gray-100 shadow-xl shadow-gray-200/50",
+  elevated: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden",
   glass: "bg-white/70 backdrop-blur-md border border-white/20",
   outline: "bg-gray-50/50 border-2 border-gray-200 border-dashed",
 };

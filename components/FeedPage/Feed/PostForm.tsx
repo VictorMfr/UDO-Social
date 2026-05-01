@@ -80,7 +80,7 @@ export default function PostForm({
 
 
     return (
-        <Card variant="flat" padding="sm">
+        <Card variant="elevated" padding="sm">
             <form onSubmit={handleCreatePost}>
 
                 <Input

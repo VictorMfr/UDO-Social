@@ -26,7 +26,7 @@ export default function PostList({
     return (
         <div className="space-y-4">
             {posts.map((post) => (
-                <Card key={post.id} variant="flat" padding="none">
+                <Card key={post.id} variant="elevated" padding="none">
                     <Post post={post} allowUserClickProfile={allowUserClickProfile}/>
                     <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex gap-6 text-gray-500 text-sm over">
                         <button

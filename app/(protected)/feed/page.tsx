@@ -3,6 +3,7 @@
 import Profile from "@/components/FeedPage/Profile";
 import Feed from "@/components/FeedPage/Feed/Feed";
 import InboxCard from "@/features/chat/components/InboxCard";
+import Tools from "@/features/tools/Tools";
 
 export default function FeedPage() {
   return (
@@ -11,8 +12,9 @@ export default function FeedPage() {
         <main className="mx-auto py-6 px-4 grid grid-cols-1 md:grid-cols-12 gap-6">
 
           {/* COLUMNA IZQUIERDA: PERFIL (Ocupa 1 de 3 columnas) */}
-          <aside className="hidden md:block col-span-3">
+          <aside className="hidden md:block col-span-3 sticky top-10">
             <Profile />
+            <Tools/>
           </aside>
 
           {/* COLUMNA DERECHA: FEED (Ocupa 2 de 3 columnas) */}
